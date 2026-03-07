@@ -190,17 +190,23 @@ describe("pi/glance", () => {
 
     const session = {
       id: "session-1",
-      url: "https://glance.sh/s/session-1",
+      url: "/s/session-1",
     } satisfies SessionResponse;
 
     const fetchMock = vi.fn(async () => jsonResponse(session));
     vi.stubGlobal("fetch", fetchMock);
 
-    await expect(__testing.createSession()).resolves.toEqual(session);
+    await expect(__testing.createSession()).resolves.toEqual({
+      ...session,
+      url: "https://glance.sh/s/session-1",
+    });
     expect(fetchMock).toHaveBeenCalledWith("https://glance.sh/api/session", {
       method: "POST",
     });
-    expect(__testing.getState().currentSession).toEqual(session);
+    expect(__testing.getState().currentSession).toEqual({
+      ...session,
+      url: "https://glance.sh/s/session-1",
+    });
     expect(__testing.isSessionStale()).toBe(false);
 
     vi.setSystemTime(new Date("2026-03-07T15:08:00.001Z"));
