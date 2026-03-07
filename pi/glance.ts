@@ -248,8 +248,8 @@ export default function (pi: ExtensionAPI) {
     imageCount++;
     // Dispatch to any blocking tool call first
     dispatchToWaiters(image);
-    // Also inject into conversation
-    pi.sendUserMessage(`Screenshot: ${image.url}`);
+    // Inject into conversation — use followUp so it queues if agent is busy
+    pi.sendUserMessage(`Screenshot: ${image.url}`, { deliverAs: "followUp" });
   }
 
   // Start background listener when session starts
