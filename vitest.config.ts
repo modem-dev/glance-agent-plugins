@@ -7,6 +7,7 @@ const resolveFromRoot = (path: string) =>
 export default defineConfig({
   resolve: {
     alias: {
+      "@opencode-ai/plugin": resolveFromRoot("./test/stubs/opencode-plugin.ts"),
       "@mariozechner/pi-ai": resolveFromRoot("./test/stubs/pi-ai.ts"),
       "@mariozechner/pi-coding-agent": resolveFromRoot(
         "./test/stubs/pi-coding-agent.ts",
@@ -18,7 +19,7 @@ export default defineConfig({
     clearMocks: true,
     coverage: {
       all: true,
-      include: ["pi/**/*.ts"],
+      include: ["opencode/**/*.ts", "pi/**/*.ts"],
       provider: "v8",
       reporter: ["text", "lcov"],
     },

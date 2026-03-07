@@ -10,12 +10,14 @@
     "noEmit": true,
     "baseUrl": ".",
     "paths": {
+      "@opencode-ai/plugin": ["test/stubs/opencode-plugin.ts"],
       "@mariozechner/pi-ai": ["test/stubs/pi-ai.ts"],
       "@mariozechner/pi-coding-agent": ["test/stubs/pi-coding-agent.ts"],
       "@mariozechner/pi-tui": ["test/stubs/pi-tui.ts"]
     }
   },
   "include": [
+    "opencode/**/*.ts",
     "pi/**/*.ts",
     "test/**/*.ts",
     "vitest.config.ts"
