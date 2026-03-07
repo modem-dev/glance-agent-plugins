@@ -1,5 +1,9 @@
 # glance.sh agent plugins
 
+[![Integration](https://github.com/modem-dev/glance-agent-plugins/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/modem-dev/glance-agent-plugins/actions/workflows/test.yml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+[![Supported Agents](https://img.shields.io/badge/agents-pi%20%7C%20OpenCode-blue)](#available-plugins)
+
 Agent integrations for [glance.sh](https://glance.sh) — temporary image sharing for coding agents.
 
 Paste a screenshot in your browser, your agent gets the URL instantly.
