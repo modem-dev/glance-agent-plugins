@@ -232,11 +232,11 @@ export const GlancePlugin: Plugin = async ({ client }) => {
       glance: tool({
         description:
           "Open a live glance.sh session so the user can paste a screenshot from their browser. " +
-          "The tool returns a session URL for the user to open, waits for them to paste an image, " +
-          "and returns the image URL. Use this when you need to see the user's screen, a UI, an " +
-          "error dialog, or anything visual.",
+          "The tool returns a session URL for the user to open. After sharing the URL with the " +
+          "user, call glance_wait to block until they paste an image. " +
+          "Use this when you need to see the user's screen, a UI, an error dialog, or anything visual.",
         args: {},
-        async execute(_args, _context) {
+        async execute() {
           // Ensure session exists
           if (!currentSession) {
             try {
@@ -250,17 +250,29 @@ export const GlancePlugin: Plugin = async ({ client }) => {
           }
 
           const sessionUrl = `${BASE_URL}${currentSession!.url}`
+          return `Session ready. Ask the user to paste an image at ${sessionUrl}`
+        },
+      }),
 
-          await client.app.log({
-            body: {
-              service: "glance",
-              level: "info",
-              message: `Waiting for image at ${sessionUrl}`,
-            },
+      glance_wait: tool({
+        description:
+          "Wait for the user to paste an image into the glance.sh session. " +
+          "Call glance first to get the session URL and share it with the user, " +
+          "then call this tool to block until an image arrives. Returns the image URL.",
+        args: {},
+        async execute(_args, context) {
+          if (!currentSession) {
+            return "No active session. Call glance first to create one."
+          }
+
+          const sessionUrl = `${BASE_URL}${currentSession!.url}`
+
+          context.metadata({
+            title: `Waiting for paste at ${sessionUrl}`,
+            metadata: { sessionUrl },
           })
 
-          // Wait for the next image from the background listener
-          const image = await waitForNextImage()
+          const image = await waitForNextImage(context.abort)
 
           if (!image) {
             return `Session timed out. Ask the user to paste an image at ${sessionUrl}`
