@@ -9,6 +9,7 @@ Paste a screenshot in your browser, your agent gets the URL instantly.
 | Agent | Directory | Status |
 |---|---|---|
 | [pi](https://github.com/mariozechner/pi) | [`pi/`](pi/) | ✅ |
+| [OpenCode](https://github.com/anomalyco/opencode) | [`opencode/`](opencode/) | ✅ |
 
 ## How it works
 
