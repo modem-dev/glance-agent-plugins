@@ -110,7 +110,11 @@ async function backgroundLoop(
 // updates happen when the tool or command is invoked.
 
 function stopBackground() {
-  abortController?.abort();
+  try {
+    abortController?.abort();
+  } catch {
+    // AbortError is expected during teardown
+  }
   abortController = null;
   currentSession = null;
 }
@@ -149,7 +153,7 @@ async function listenForImages(
 
   const onAbort = () => {
     clearTimeout(timeout);
-    reader.cancel();
+    reader.cancel().catch(() => {});
   };
   signal.addEventListener("abort", onAbort, { once: true });
 
