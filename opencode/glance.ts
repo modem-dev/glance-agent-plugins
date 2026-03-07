@@ -120,6 +120,8 @@ async function listenForImages(
   const reader = res.body.getReader()
   const decoder = new TextDecoder()
   let buffer = ""
+  let eventType = ""
+  let dataLines: string[] = []
 
   const timeout = setTimeout(() => {
     reader.cancel()
@@ -139,9 +141,6 @@ async function listenForImages(
       buffer += decoder.decode(value, { stream: true })
       const lines = buffer.split("\n")
       buffer = lines.pop() ?? ""
-
-      let eventType = ""
-      let dataLines: string[] = []
 
       for (const line of lines) {
         if (line.startsWith("event: ")) {
