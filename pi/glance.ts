@@ -146,6 +146,8 @@ async function listenForImages(
   const reader = res.body.getReader();
   const decoder = new TextDecoder();
   let buffer = "";
+  let eventType = "";
+  let dataLines: string[] = [];
 
   const timeout = setTimeout(() => {
     reader.cancel();
@@ -165,9 +167,6 @@ async function listenForImages(
       buffer += decoder.decode(value, { stream: true });
       const lines = buffer.split("\n");
       buffer = lines.pop() ?? "";
-
-      let eventType = "";
-      let dataLines: string[] = [];
 
       for (const line of lines) {
         if (line.startsWith("event: ")) {
@@ -233,15 +232,52 @@ function waitForNextImage(signal?: AbortSignal): Promise<ImageEvent | null> {
   });
 }
 
-/** Dispatch an image to any waiting tool call. */
-function dispatchToWaiters(image: ImageEvent) {
-  for (const key of Object.keys(globalThis)) {
-    if (key.startsWith("__glance_waiter_")) {
-      const fn = (globalThis as any)[key];
-      if (typeof fn === "function") fn(image);
-    }
+function getWaiterKeys(): string[] {
+  return Object.keys(globalThis).filter((key) =>
+    key.startsWith("__glance_waiter_"),
+  );
+}
+
+function clearWaiters() {
+  for (const key of getWaiterKeys()) {
+    delete (globalThis as any)[key];
   }
 }
+
+/** Dispatch an image to any waiting tool call. */
+function dispatchToWaiters(image: ImageEvent) {
+  for (const key of getWaiterKeys()) {
+    const fn = (globalThis as any)[key];
+    if (typeof fn === "function") fn(image);
+  }
+}
+
+export const __testing = {
+  backgroundLoop,
+  createSession,
+  dispatchToWaiters,
+  getState() {
+    return {
+      currentSession,
+      running,
+      sessionCreatedAt,
+    };
+  },
+  isSessionStale,
+  listenForImages,
+  resetState() {
+    stopBackground();
+    sessionCreatedAt = 0;
+    running = false;
+    clearWaiters();
+  },
+  setSession(session: SessionResponse | null, createdAt = Date.now()) {
+    currentSession = session;
+    sessionCreatedAt = session ? createdAt : 0;
+  },
+  stopBackground,
+  waitForNextImage,
+};
 
 // ── Extension entry point ──────────────────────────────────────────
 
