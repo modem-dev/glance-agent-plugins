@@ -191,6 +191,31 @@ describe("opencode glance plugin", () => {
       )
     })
 
+    it("parses image events split across SSE chunks", async () => {
+      const expiresAt = Date.now() + 60_000
+
+      vi.stubGlobal(
+        "fetch",
+        routedFetch({
+          session: { id: "sess-chunked", url: "/s/sess-chunked" },
+          sseEvents: [
+            'event: image\ndata: {"url":"https://glance.sh/chunked.png",',
+            `"expiresAt":${expiresAt}}\n\n`,
+          ],
+        }),
+      )
+
+      const GlancePlugin = await loadPlugin()
+      const plugin = await GlancePlugin(mockClient())
+
+      await plugin.tool.glance.execute({})
+
+      const ctx = mockContext()
+      const result = await plugin.tool.glance_wait.execute({}, ctx)
+
+      expect(result).toContain("https://glance.sh/chunked.png")
+    })
+
     it("returns timeout message when aborted", async () => {
       vi.stubGlobal(
         "fetch",
