@@ -46,6 +46,10 @@ interface GlanceDetails {
   expiresAt?: number;
 }
 
+function normalizeSessionUrl(url: string): string {
+  return new URL(url, BASE_URL).toString();
+}
+
 // ── Persistent background session ──────────────────────────────────
 
 let currentSession: SessionResponse | null = null;
@@ -57,6 +61,7 @@ async function createSession(): Promise<SessionResponse> {
   const res = await fetch(`${BASE_URL}/api/session`, { method: "POST" });
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   const session = (await res.json()) as SessionResponse;
+  session.url = normalizeSessionUrl(session.url);
   currentSession = session;
   sessionCreatedAt = Date.now();
   return session;
