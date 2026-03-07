@@ -29,6 +29,8 @@ const RECONNECT_DELAY_MS = 3_000;
 /** How often to create a fresh session (sessions have 10-min TTL). */
 const SESSION_REFRESH_MS = 8 * 60 * 1000; // 8 minutes — well before expiry
 
+const WAITER_PREFIX = "__glance_waiter_pi_";
+
 interface SessionResponse {
   id: string;
   url: string;
@@ -56,6 +58,7 @@ let currentSession: SessionResponse | null = null;
 let sessionCreatedAt = 0;
 let abortController: AbortController | null = null;
 let running = false;
+let waiterCounter = 0;
 
 async function createSession(): Promise<SessionResponse> {
   const res = await fetch(`${BASE_URL}/api/session`, { method: "POST" });
@@ -126,6 +129,11 @@ function stopBackground() {
 
 function sleep(ms: number): Promise<void> {
   return new Promise((r) => setTimeout(r, ms));
+}
+
+function nextWaiterKey(): string {
+  waiterCounter += 1;
+  return `${WAITER_PREFIX}${Date.now()}_${waiterCounter}`;
 }
 
 // ── SSE listener (multi-image) ─────────────────────────────────────
@@ -222,7 +230,7 @@ function waitForNextImage(signal?: AbortSignal): Promise<ImageEvent | null> {
 
     // Poll: check for new images by watching the background loop.
     // We do this by subscribing to a one-time callback.
-    const key = `__glance_waiter_${Date.now()}`;
+    const key = nextWaiterKey();
     (globalThis as any)[key] = (image: ImageEvent) => {
       clearTimeout(timeout);
       delete (globalThis as any)[key];
@@ -239,7 +247,7 @@ function waitForNextImage(signal?: AbortSignal): Promise<ImageEvent | null> {
 
 function getWaiterKeys(): string[] {
   return Object.keys(globalThis).filter((key) =>
-    key.startsWith("__glance_waiter_"),
+    key.startsWith(WAITER_PREFIX),
   );
 }
 
@@ -274,6 +282,7 @@ export const __testing = {
     stopBackground();
     sessionCreatedAt = 0;
     running = false;
+    waiterCounter = 0;
     clearWaiters();
   },
   setSession(session: SessionResponse | null, createdAt = Date.now()) {

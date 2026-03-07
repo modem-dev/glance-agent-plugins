@@ -127,6 +127,12 @@ function createTheme(): Theme {
   };
 }
 
+function getPiWaiterKeys(): string[] {
+  return Object.keys(globalThis).filter((key) =>
+    key.startsWith("__glance_waiter_pi_"),
+  );
+}
+
 function createPi(options?: { autoShutdownOnMessage?: boolean }) {
   const events = new Map<string, (...args: any[]) => unknown>();
   const commands = new Map<string, CommandDefinition>();
@@ -291,6 +297,30 @@ describe("pi/glance", () => {
     await vi.waitFor(() => {
       expect(__testing.getState().running).toBe(false);
     });
+  });
+
+  it("registers distinct waiters even within the same millisecond", async () => {
+    __testing.setSession({
+      id: "session-waiters",
+      url: "https://glance.sh/s/session-waiters",
+    });
+
+    const dateNowSpy = vi.spyOn(Date, "now").mockReturnValue(123);
+
+    const ac1 = new AbortController();
+    const ac2 = new AbortController();
+
+    const wait1 = __testing.waitForNextImage(ac1.signal);
+    const wait2 = __testing.waitForNextImage(ac2.signal);
+
+    expect(getPiWaiterKeys()).toHaveLength(2);
+
+    ac1.abort();
+    ac2.abort();
+
+    await expect(Promise.all([wait1, wait2])).resolves.toEqual([null, null]);
+
+    dateNowSpy.mockRestore();
   });
 
   it("shows the active session URL through the /glance command", async () => {

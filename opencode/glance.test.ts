@@ -54,6 +54,12 @@ function cleanupWaiters() {
   }
 }
 
+function getOpenCodeWaiterKeys(): string[] {
+  return Object.keys(globalThis).filter((key) =>
+    key.startsWith("__glance_waiter_opencode_"),
+  )
+}
+
 /**
  * URL-aware fetch mock. Routes by URL so both the background loop and
  * tool calls get correct responses regardless of call order.
@@ -214,6 +220,39 @@ describe("opencode glance plugin", () => {
       const result = await plugin.tool.glance_wait.execute({}, ctx)
 
       expect(result).toContain("https://glance.sh/chunked.png")
+    })
+
+    it("registers distinct waiters even within the same millisecond", async () => {
+      vi.stubGlobal(
+        "fetch",
+        routedFetch({
+          session: { id: "sess-waiters", url: "/s/sess-waiters" },
+        }),
+      )
+
+      const GlancePlugin = await loadPlugin()
+      const plugin = await GlancePlugin(mockClient())
+
+      await plugin.tool.glance.execute({})
+
+      const dateNowSpy = vi.spyOn(Date, "now").mockReturnValue(123)
+      const ac1 = new AbortController()
+      const ac2 = new AbortController()
+
+      const wait1 = plugin.tool.glance_wait.execute({}, mockContext(ac1.signal))
+      const wait2 = plugin.tool.glance_wait.execute({}, mockContext(ac2.signal))
+
+      expect(getOpenCodeWaiterKeys()).toHaveLength(2)
+
+      ac1.abort()
+      ac2.abort()
+
+      await expect(Promise.all([wait1, wait2])).resolves.toEqual([
+        "Session timed out. Ask the user to paste an image at https://glance.sh/s/sess-waiters",
+        "Session timed out. Ask the user to paste an image at https://glance.sh/s/sess-waiters",
+      ])
+
+      dateNowSpy.mockRestore()
     })
 
     it("returns timeout message when aborted", async () => {
