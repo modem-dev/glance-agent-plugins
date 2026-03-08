@@ -1,0 +1,13 @@
+{
+  "name": "glance-claude",
+  "version": "0.1.0",
+  "description": "glance.sh MCP tools for Claude Code",
+  "author": {
+    "name": "Modem"
+  },
+  "homepage": "https://github.com/modem-dev/glance-agent-plugins/tree/main/claude",
+  "repository": "https://github.com/modem-dev/glance-agent-plugins",
+  "license": "MIT",
+  "keywords": ["claude-code", "mcp", "glance", "screenshots", "agent"],
+  "mcpServers": "./.mcp.json"
+}

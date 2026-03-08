@@ -19,6 +19,7 @@
   "include": [
     "opencode/**/*.ts",
     "pi/**/*.ts",
+    "claude/**/*.ts",
     "test/**/*.ts",
     "vitest.config.ts"
   ]

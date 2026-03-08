@@ -1,0 +1,31 @@
+{
+  "name": "@modemdev/glance-claude",
+  "version": "0.1.0",
+  "description": "glance.sh plugin package for Claude Code",
+  "license": "MIT",
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/modem-dev/glance-agent-plugins.git",
+    "directory": "claude"
+  },
+  "homepage": "https://github.com/modem-dev/glance-agent-plugins/tree/main/claude",
+  "bugs": {
+    "url": "https://github.com/modem-dev/glance-agent-plugins/issues"
+  },
+  "keywords": [
+    "claude-code",
+    "claude-plugin",
+    "mcp",
+    "glance",
+    "screenshot",
+    "agent"
+  ],
+  "files": [
+    ".claude-plugin",
+    ".mcp.json",
+    "servers/glance-mcp.js",
+    "README.md"
+  ],
+  "main": "servers/glance-mcp.js"
+}

@@ -1,0 +1,24 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "glance-agent-plugins",
+  "version": "1.0.0",
+  "description": "glance.sh plugins for coding agents",
+  "metadata": {
+    "description": "glance.sh plugins for coding agents"
+  },
+  "owner": {
+    "name": "Modem"
+  },
+  "plugins": [
+    {
+      "name": "glance-claude",
+      "description": "glance.sh screenshot session tools for Claude Code",
+      "source": {
+        "source": "npm",
+        "package": "@modemdev/glance-claude"
+      },
+      "category": "productivity",
+      "tags": ["glance", "screenshots", "mcp"]
+    }
+  ]
+}

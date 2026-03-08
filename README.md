@@ -2,7 +2,7 @@
 
 [![Integration](https://github.com/modem-dev/glance-agent-plugins/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/modem-dev/glance-agent-plugins/actions/workflows/test.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
-[![Supported Agents](https://img.shields.io/badge/agents-pi%20%7C%20OpenCode-blue)](#available-plugins)
+[![Supported Agents](https://img.shields.io/badge/agents-pi%20%7C%20OpenCode%20%7C%20Claude%20Code-blue)](#available-plugins)
 
 Agent integrations for [glance.sh](https://glance.sh) — temporary image sharing for coding agents.
 
@@ -14,6 +14,7 @@ Paste a screenshot in your browser, your agent gets the URL instantly.
 |---|---|---|---|
 | [pi](https://github.com/mariozechner/pi) | [`pi/`](pi/) | `@modemdev/glance-pi` | `pi install npm:@modemdev/glance-pi` |
 | [OpenCode](https://github.com/anomalyco/opencode) | [`opencode/`](opencode/) | `@modemdev/glance-opencode` | Add `"@modemdev/glance-opencode"` to `opencode.json` `plugin` list |
+| [Claude Code](https://github.com/anthropics/claude-code) | [`claude/`](claude/) | `@modemdev/glance-claude` | `/plugin marketplace add modem-dev/glance-agent-plugins` then `/plugin install glance-claude@glance-agent-plugins` |
 
 ## How it works
 
