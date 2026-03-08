@@ -13,7 +13,16 @@ The server keeps a background SSE listener alive, reconnects automatically, and 
 
 ## Install
 
-### Option A: Local development (fastest)
+Recommended (npm-backed marketplace plugin):
+
+```text
+/plugin marketplace add modem-dev/glance-agent-plugins
+/plugin install glance-claude@glance-agent-plugins
+```
+
+This plugin is distributed as `@modemdev/glance-claude` and installed through Claude Code's plugin marketplace flow.
+
+### Local development (plugin dir)
 
 From this repo root:
 
@@ -26,19 +35,6 @@ Or from inside `agent-plugins/`:
 ```bash
 claude --plugin-dir ./claude
 ```
-
-### Option B: Marketplace install
-
-1. Add this repo as a marketplace:
-
-```text
-/plugin marketplace add modem-dev/glance-agent-plugins
-```
-
-2. Install `glance-claude` from the **Discover** tab in `/plugin`.
-
-(You can also install by command if your marketplace alias resolves to `glance-agent-plugins`:
-`/plugin install glance-claude@glance-agent-plugins`.)
 
 ## Verify
 
@@ -53,7 +49,26 @@ claude --plugin-dir ./claude
 - Update: `/plugin update glance-claude`
 - Remove: `/plugin uninstall glance-claude`
 
-(If installed in a specific scope, use the corresponding scope option in the plugin manager.)
+If you have multiple plugins with the same name from different marketplaces, use the fully qualified form (`glance-claude@glance-agent-plugins`).
+
+## Publishing (maintainers)
+
+Releases are automated via GitHub Actions.
+
+Prerequisite: configure `NPM_TOKEN` in the `glance-agent-plugins` repository with publish access to `@modemdev/glance-claude`.
+
+1. Bump `version` in both:
+   - `claude/package.json`
+   - `claude/.claude-plugin/plugin.json`
+2. Commit and push to `main`.
+3. Create and push a matching tag:
+
+```bash
+git tag claude-v0.1.0
+git push origin claude-v0.1.0
+```
+
+The `Release claude package` workflow validates tag/version alignment, checks for already-published versions, runs `npm pack --dry-run`, and publishes with npm provenance.
 
 ## How it works
 

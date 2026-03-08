@@ -13,7 +13,10 @@
     {
       "name": "glance-claude",
       "description": "glance.sh screenshot session tools for Claude Code",
-      "source": "./claude",
+      "source": {
+        "source": "npm",
+        "package": "@modemdev/glance-claude"
+      },
       "category": "productivity",
       "tags": ["glance", "screenshots", "mcp"]
     }

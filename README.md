@@ -14,7 +14,7 @@ Paste a screenshot in your browser, your agent gets the URL instantly.
 |---|---|---|---|
 | [pi](https://github.com/mariozechner/pi) | [`pi/`](pi/) | `@modemdev/glance-pi` | `pi install npm:@modemdev/glance-pi` |
 | [OpenCode](https://github.com/anomalyco/opencode) | [`opencode/`](opencode/) | `@modemdev/glance-opencode` | Add `"@modemdev/glance-opencode"` to `opencode.json` `plugin` list |
-| [Claude Code](https://github.com/anthropics/claude-code) | [`claude/`](claude/) | — | `claude --plugin-dir ./agent-plugins/claude` (dev) or install `glance-claude` via `/plugin` marketplace |
+| [Claude Code](https://github.com/anthropics/claude-code) | [`claude/`](claude/) | `@modemdev/glance-claude` | `/plugin marketplace add modem-dev/glance-agent-plugins` then `/plugin install glance-claude@glance-agent-plugins` |
 
 ## How it works
 
