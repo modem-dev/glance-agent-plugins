@@ -16,7 +16,7 @@ Maintains a **persistent background session** on glance.sh. Paste an image anyti
 Recommended (npm package):
 
 ```bash
-pi install npm:@modem-dev/glance-pi
+pi install npm:@modemdev/glance-pi
 ```
 
 If you are working from a local checkout instead:
@@ -45,7 +45,7 @@ You should see a session URL like `https://glance.sh/s/<id>`.
 
 ```bash
 pi update
-pi remove npm:@modem-dev/glance-pi
+pi remove npm:@modemdev/glance-pi
 ```
 
 For a local path install, remove that path from your pi settings (or run `pi remove` with the same path you installed).
@@ -54,7 +54,7 @@ For a local path install, remove that path from your pi settings (or run `pi rem
 
 Releases are automated via GitHub Actions.
 
-Prerequisite: configure `NPM_TOKEN` in the `glance-agent-plugins` repository with publish access to `@modem-dev/glance-pi`.
+Prerequisite: configure `NPM_TOKEN` in the `glance-agent-plugins` repository with publish access to `@modemdev/glance-pi`.
 
 1. Bump `version` in `pi/package.json`.
 2. Commit and push to `main`.
