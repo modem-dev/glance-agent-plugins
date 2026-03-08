@@ -9,8 +9,9 @@
  * screenshot; it surfaces the existing session URL and waits for a
  * paste.
  *
- * Install: symlink or copy this file into your opencode plugins
- * directory, e.g. .opencode/plugins/glance.ts or
+ * Install: add "@modemdev/glance-opencode" to the `plugin` list in
+ * opencode.json (recommended), or symlink/copy this file into your
+ * plugins directory, e.g. .opencode/plugins/glance.ts or
  * ~/.config/opencode/plugins/glance.ts
  */
 
