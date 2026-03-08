@@ -10,16 +10,16 @@ Paste a screenshot in your browser, your agent gets the URL instantly.
 
 ## Available plugins
 
-| Agent | Directory | Status |
-|---|---|---|
-| [pi](https://github.com/mariozechner/pi) | [`pi/`](pi/) | ✅ |
-| [OpenCode](https://github.com/anomalyco/opencode) | [`opencode/`](opencode/) | ✅ |
+| Agent | Directory | npm package | Install |
+|---|---|---|---|
+| [pi](https://github.com/mariozechner/pi) | [`pi/`](pi/) | `@modem-dev/glance-pi` | `pi install npm:@modem-dev/glance-pi` |
+| [OpenCode](https://github.com/anomalyco/opencode) | [`opencode/`](opencode/) | — | See [`opencode/README.md`](opencode/README.md) |
 
 ## How it works
 
 Each plugin creates a live session on glance.sh, gives you a URL to open, and waits for you to paste an image. The image URL is returned to the agent over SSE — no manual copy-paste needed.
 
-```
+```text
 agent ──POST /api/session──▶ { id, url }
 agent ──GET  /api/session/<id>/events──▶ SSE (waiting…)
 user  ──opens /s/<id>, pastes image──▶ agent receives URL
@@ -27,14 +27,20 @@ user  ──opens /s/<id>, pastes image──▶ agent receives URL
 
 Sessions are anonymous and ephemeral (10-minute TTL). Images expire after 30 minutes.
 
+## Packaging policy
+
+New plugins should be published as installable packages (npm where possible) with a one-command install path in their README.
+
+Each plugin directory should include:
+
+1. Integration code
+2. `README.md` with install / verify / update / remove steps
+3. `package.json` (if the target agent supports package-based install)
+4. Release automation (GitHub Actions workflow + documented version/tag convention)
+
 ## Adding a new plugin
 
-Create a directory for your agent (e.g. `cursor/`, `cline/`) with:
-
-1. The integration code
-2. A `README.md` with install instructions
-
-Open a PR.
+Create a directory for your agent (e.g. `cursor/`, `cline/`) with the files above and open a PR.
 
 ## License
 

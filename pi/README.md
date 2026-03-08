@@ -13,21 +13,75 @@ Maintains a **persistent background session** on glance.sh. Paste an image anyti
 
 ## Install
 
-Symlink or copy `glance.ts` into your pi extensions directory:
+Recommended (npm package):
 
 ```bash
-# symlink (recommended — stays up to date with git pulls)
-ln -s "$(pwd)/glance.ts" ~/.pi/extensions/glance.ts
-
-# or copy
-cp glance.ts ~/.pi/extensions/glance.ts
+pi install npm:@modem-dev/glance-pi
 ```
 
-Restart pi. The background session starts automatically.
+If you are working from a local checkout instead:
+
+```bash
+# from this directory (agent-plugins/pi)
+pi install .
+
+# from the main repo root
+pi install ./agent-plugins/pi
+```
+
+Then restart pi or run `/reload`.
+
+## Verify
+
+Run:
+
+```text
+/glance
+```
+
+You should see a session URL like `https://glance.sh/s/<id>`.
+
+## Update / remove
+
+```bash
+pi update
+pi remove npm:@modem-dev/glance-pi
+```
+
+For a local path install, remove that path from your pi settings (or run `pi remove` with the same path you installed).
+
+## Publishing (maintainers)
+
+Releases are automated via GitHub Actions.
+
+Prerequisite: configure `NPM_TOKEN` in the `glance-agent-plugins` repository with publish access to `@modem-dev/glance-pi`.
+
+1. Bump `version` in `pi/package.json`.
+2. Commit and push to `main`.
+3. Create and push a matching tag:
+
+```bash
+git tag pi-v0.1.0
+git push origin pi-v0.1.0
+```
+
+The `Release pi package` workflow validates the tag/version match and publishes with npm provenance.
+You can also run the workflow manually in dry-run mode from Actions.
+
+## Manual install (legacy)
+
+If you prefer manual file management, symlink or copy `glance.ts` into your pi extensions directory:
+
+```bash
+mkdir -p ~/.pi/agent/extensions
+ln -s "$(pwd)/glance.ts" ~/.pi/agent/extensions/glance.ts
+# or:
+cp glance.ts ~/.pi/agent/extensions/glance.ts
+```
 
 ## How it works
 
-```
+```text
 pi starts
   └─▶ create session on glance.sh
   └─▶ connect SSE (background, auto-reconnect)
