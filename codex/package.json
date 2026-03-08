@@ -1,0 +1,34 @@
+{
+  "name": "@modemdev/glance-codex",
+  "version": "0.1.0",
+  "description": "glance.sh MCP server package for Codex",
+  "license": "MIT",
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/modem-dev/glance-agent-plugins.git",
+    "directory": "codex"
+  },
+  "homepage": "https://github.com/modem-dev/glance-agent-plugins/tree/main/codex",
+  "bugs": {
+    "url": "https://github.com/modem-dev/glance-agent-plugins/issues"
+  },
+  "keywords": [
+    "codex",
+    "mcp",
+    "glance",
+    "screenshot",
+    "agent"
+  ],
+  "files": [
+    ".codex-plugin",
+    ".mcp.json",
+    "servers/glance-mcp.js",
+    "servers/glance-mcp.d.ts",
+    "README.md"
+  ],
+  "main": "servers/glance-mcp.js",
+  "bin": {
+    "glance-codex": "servers/glance-mcp.js"
+  }
+}

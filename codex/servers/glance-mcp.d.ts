@@ -1,19 +1,33 @@
-import type {
-  GlanceRuntime,
-  McpRuntime,
-  McpServer,
-} from "../../claude/servers/glance-mcp.js"
+export type McpTextContent = { type: string; text: string }
 
-export { createGlanceRuntime, createMcpServer } from "../../claude/servers/glance-mcp.js"
+export interface ToolResult {
+  content: McpTextContent[]
+  structuredContent?: Record<string, unknown>
+  isError?: boolean
+}
 
-export interface CodexMcpServerOptions {
-  runtime?: McpRuntime
-  runtimeOptions?: Parameters<
-    typeof import("../../claude/servers/glance-mcp.js").createGlanceRuntime
-  >[0]
-  serverOptions?: Parameters<
-    typeof import("../../claude/servers/glance-mcp.js").createMcpServer
-  >[0]
+export interface GlanceRuntime {
+  executeTool(name: string, args?: Record<string, unknown>, signal?: AbortSignal): Promise<ToolResult>
+  getTools(): Array<{
+    name: string
+    description: string
+    inputSchema: Record<string, unknown>
+  }>
+  getState(): {
+    currentSession: { id: string; url: string } | null
+    running: boolean
+    sessionCreatedAt: number
+    waiterCount: number
+  }
+  startBackground(): void
+  stopBackground(): void
+}
+
+export interface McpServer {
+  handleData(chunk: Buffer | string): void
+  handleMessage(message: Record<string, unknown>): Promise<void>
+  start(): void
+  stop(): void
 }
 
 export function createGlanceRuntime(options?: {
@@ -22,6 +36,20 @@ export function createGlanceRuntime(options?: {
   log?: (message: string) => void
   quietLogs?: boolean
 }): GlanceRuntime
+
+export interface McpRuntime {
+  getTools(): Array<{
+    name: string
+    description: string
+    inputSchema: Record<string, unknown>
+  }>
+  executeTool(
+    name: string,
+    args?: Record<string, unknown>,
+    signal?: AbortSignal,
+  ): Promise<ToolResult>
+  stopBackground(): void
+}
 
 export function createMcpServer(options?: {
   runtime?: McpRuntime
@@ -34,4 +62,8 @@ export function createMcpServer(options?: {
   quietLogs?: boolean
 }): McpServer
 
-export function createCodexMcpServer(options?: CodexMcpServerOptions): McpServer
+export function createCodexMcpServer(options?: {
+  runtime?: McpRuntime
+  runtimeOptions?: Parameters<typeof createGlanceRuntime>[0]
+  serverOptions?: Parameters<typeof createMcpServer>[0]
+}): McpServer

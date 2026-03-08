@@ -13,13 +13,19 @@ The server keeps a background SSE listener alive, reconnects automatically, and 
 
 ## Install
 
-From this repository:
+Recommended (npm package):
 
 ```bash
-codex mcp add glance -- node "$(pwd)/codex/servers/glance-mcp.js"
+codex mcp add glance -- npx -y @modemdev/glance-codex
 ```
 
-Or with an absolute path from anywhere:
+Optional: pin a specific version:
+
+```bash
+codex mcp add glance -- npx -y @modemdev/glance-codex@0.1.0
+```
+
+Local development / manual install:
 
 ```bash
 codex mcp add glance -- node /absolute/path/to/glance-agent-plugins/codex/servers/glance-mcp.js
@@ -41,11 +47,11 @@ codex mcp get glance --json
 
 ## Update / remove
 
-Update to the latest plugin code:
+Update:
 
 ```bash
 codex mcp remove glance
-codex mcp add glance -- node /absolute/path/to/glance-agent-plugins/codex/servers/glance-mcp.js
+codex mcp add glance -- npx -y @modemdev/glance-codex
 ```
 
 Remove:
@@ -53,6 +59,23 @@ Remove:
 ```bash
 codex mcp remove glance
 ```
+
+## Publishing (maintainers)
+
+Releases are automated via GitHub Actions.
+
+Prerequisite: configure `NPM_TOKEN` in the `glance-agent-plugins` repository with publish access to `@modemdev/glance-codex`.
+
+1. Bump `version` in `codex/package.json`.
+2. Commit and push to `main`.
+3. Create and push a matching tag:
+
+```bash
+git tag codex-v0.1.0
+git push origin codex-v0.1.0
+```
+
+The `Release codex package` workflow validates tag/version alignment, checks for already-published versions, runs `npm pack --dry-run`, and publishes with npm provenance.
 
 ## How it works
 

@@ -33,13 +33,19 @@ describe("codex glance plugin", () => {
     vi.restoreAllMocks()
   })
 
-  it("ships codex plugin manifest and MCP config", () => {
+  it("ships codex plugin manifest, MCP config, and npm package metadata", () => {
     const pluginJsonPath = fileURLToPath(new URL("./.codex-plugin/plugin.json", import.meta.url))
     const mcpJsonPath = fileURLToPath(new URL("./.mcp.json", import.meta.url))
+    const packageJsonPath = fileURLToPath(new URL("./package.json", import.meta.url))
 
     const manifest = JSON.parse(readFileSync(pluginJsonPath, "utf8")) as Record<string, unknown>
     const mcpConfig = JSON.parse(readFileSync(mcpJsonPath, "utf8")) as {
       mcpServers?: Record<string, Record<string, unknown>>
+    }
+    const packageJson = JSON.parse(readFileSync(packageJsonPath, "utf8")) as {
+      name?: string
+      bin?: Record<string, string>
+      main?: string
     }
 
     expect(manifest.name).toBe("glance-codex")
@@ -48,6 +54,10 @@ describe("codex glance plugin", () => {
     expect(mcpConfig.mcpServers?.glance?.command).toBe("node")
     expect(mcpConfig.mcpServers?.glance?.args).toEqual(["servers/glance-mcp.js"])
     expect(mcpConfig.mcpServers?.glance?.cwd).toBe(".")
+
+    expect(packageJson.name).toBe("@modemdev/glance-codex")
+    expect(packageJson.main).toBe("servers/glance-mcp.js")
+    expect(packageJson.bin?.["glance-codex"]).toBe("servers/glance-mcp.js")
   })
 
   it("returns a session URL from glance", async () => {
