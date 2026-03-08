@@ -1,0 +1,6 @@
+{
+  "glance": {
+    "command": "node",
+    "args": ["${CLAUDE_PLUGIN_ROOT}/servers/glance-mcp.js"]
+  }
+}
