@@ -1,0 +1,73 @@
+name: Release pi package
+
+on:
+  push:
+    tags:
+      - 'pi-v*'
+  workflow_dispatch:
+    inputs:
+      publish:
+        description: Publish to npm (unchecked = dry run only)
+        type: boolean
+        required: false
+        default: false
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: release-pi
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          registry-url: https://registry.npmjs.org
+
+      - name: Read package metadata
+        id: pkg
+        run: |
+          echo "name=$(node -p \"require('./pi/package.json').name\")" >> "$GITHUB_OUTPUT"
+          echo "version=$(node -p \"require('./pi/package.json').version\")" >> "$GITHUB_OUTPUT"
+
+      - name: Validate release tag matches package version
+        if: github.event_name == 'push'
+        run: |
+          expected="pi-v${{ steps.pkg.outputs.version }}"
+          if [ "${GITHUB_REF_NAME}" != "$expected" ]; then
+            echo "::error title=Tag/version mismatch::Expected tag $expected for version ${{ steps.pkg.outputs.version }}, got ${GITHUB_REF_NAME}."
+            exit 1
+          fi
+
+      - name: Ensure npm version is not already published
+        if: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.publish)
+        run: |
+          if npm view "${{ steps.pkg.outputs.name }}@${{ steps.pkg.outputs.version }}" version >/dev/null 2>&1; then
+            echo "::error title=Version already published::${{ steps.pkg.outputs.name }}@${{ steps.pkg.outputs.version }} already exists on npm."
+            exit 1
+          fi
+
+      - name: Validate package contents
+        working-directory: pi
+        run: npm pack --dry-run
+
+      - name: Publish to npm
+        if: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.publish)
+        working-directory: pi
+        run: npm publish --access public --provenance
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Dry-run summary
+        if: github.event_name == 'workflow_dispatch' && !inputs.publish
+        run: |
+          echo "Dry run complete for ${{ steps.pkg.outputs.name }}@${{ steps.pkg.outputs.version }}."
+          echo "Re-run this workflow with publish=true to publish." 

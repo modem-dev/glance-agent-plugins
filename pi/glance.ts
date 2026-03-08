@@ -10,8 +10,10 @@
  *   - `glance` tool — the LLM can call it to request a screenshot;
  *     it surfaces the existing session URL and waits for a paste.
  *
- * Install: symlink or copy this file into your pi extensions directory,
- *   e.g. ~/.pi/extensions/glance.ts
+ * Install:
+ *   - Recommended: `pi install npm:@modem-dev/glance-pi`
+ *   - Local checkout: `pi install /path/to/glance-agent-plugins/pi`
+ *   - Manual fallback: symlink/copy into ~/.pi/agent/extensions/glance.ts
  */
 
 import { Type } from "@mariozechner/pi-ai";
