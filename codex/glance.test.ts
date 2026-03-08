@@ -51,7 +51,7 @@ describe("codex glance plugin", () => {
   })
 
   it("returns a session URL from glance", async () => {
-    const fetchMock = vi.fn((input: string | URL, init?: RequestInit) => {
+    const fetchMock = vi.fn((input: RequestInfo | URL, init?: RequestInit) => {
       const url = String(input)
 
       if (url === "https://glance.sh/api/session") {
