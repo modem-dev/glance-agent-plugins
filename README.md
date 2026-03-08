@@ -12,7 +12,7 @@ Paste a screenshot in your browser, your agent gets the URL instantly.
 
 | Agent | Directory | npm package | Install |
 |---|---|---|---|
-| [pi](https://github.com/mariozechner/pi) | [`pi/`](pi/) | `@modem-dev/glance-pi` | `pi install npm:@modem-dev/glance-pi` |
+| [pi](https://github.com/mariozechner/pi) | [`pi/`](pi/) | `@modemdev/glance-pi` | `pi install npm:@modemdev/glance-pi` |
 | [OpenCode](https://github.com/anomalyco/opencode) | [`opencode/`](opencode/) | — | See [`opencode/README.md`](opencode/README.md) |
 
 ## How it works

@@ -11,7 +11,7 @@
  *     it surfaces the existing session URL and waits for a paste.
  *
  * Install:
- *   - Recommended: `pi install npm:@modem-dev/glance-pi`
+ *   - Recommended: `pi install npm:@modemdev/glance-pi`
  *   - Local checkout: `pi install /path/to/glance-agent-plugins/pi`
  *   - Manual fallback: symlink/copy into ~/.pi/agent/extensions/glance.ts
  */
