@@ -1,0 +1,5 @@
+{
+  "name": "glance-codex",
+  "description": "glance.sh MCP tools for Codex",
+  "mcpServers": "./.mcp.json"
+}
