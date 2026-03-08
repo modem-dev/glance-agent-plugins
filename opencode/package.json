@@ -1,0 +1,33 @@
+{
+  "name": "@modemdev/glance-opencode",
+  "version": "0.1.0",
+  "description": "glance.sh plugin package for OpenCode",
+  "license": "MIT",
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/modem-dev/glance-agent-plugins.git",
+    "directory": "opencode"
+  },
+  "homepage": "https://github.com/modem-dev/glance-agent-plugins/tree/main/opencode",
+  "bugs": {
+    "url": "https://github.com/modem-dev/glance-agent-plugins/issues"
+  },
+  "keywords": [
+    "opencode",
+    "opencode-plugin",
+    "glance",
+    "screenshot",
+    "agent"
+  ],
+  "files": [
+    "glance.ts",
+    "README.md"
+  ],
+  "exports": {
+    ".": "./glance.ts"
+  },
+  "dependencies": {
+    "@opencode-ai/plugin": "^1.0.0"
+  }
+}
