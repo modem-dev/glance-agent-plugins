@@ -20,6 +20,7 @@
     "opencode/**/*.ts",
     "pi/**/*.ts",
     "claude/**/*.ts",
+    "codex/**/*.ts",
     "test/**/*.ts",
     "vitest.config.ts"
   ]

@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "glance": {
+      "command": "node",
+      "args": ["servers/glance-mcp.js"],
+      "cwd": "."
+    }
+  }
+}
