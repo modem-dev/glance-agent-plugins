@@ -1,6 +1,6 @@
 {
   "name": "@modemdev/glance-codex",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "glance.sh MCP server package for Codex",
   "license": "MIT",
   "type": "module",
