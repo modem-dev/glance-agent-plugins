@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
-import { pathToFileURL } from "node:url"
+import { realpathSync } from "node:fs"
+import { fileURLToPath } from "node:url"
 
 const DEFAULT_BASE_URL = process.env.GLANCE_BASE_URL?.trim() || "https://glance.sh"
 
@@ -740,7 +741,13 @@ function isMainModule() {
     return false
   }
 
-  return import.meta.url === pathToFileURL(process.argv[1]).href
+  try {
+    const invokedPath = realpathSync(process.argv[1])
+    const currentPath = realpathSync(fileURLToPath(import.meta.url))
+    return invokedPath === currentPath
+  } catch {
+    return false
+  }
 }
 
 if (isMainModule()) {
