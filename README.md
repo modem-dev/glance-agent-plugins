@@ -40,21 +40,6 @@ Each plugin directory should include:
 3. `package.json` (if the target agent supports package-based install)
 4. Release automation (GitHub Actions workflow + documented version/tag convention)
 
-## Shared MCP runtime
-
-Claude and Codex now share one MCP runtime source at `common/mcp/glance-mcp.js`.
-
-To keep standalone npm packages working, package-local copies are synced to:
-
-- `claude/common/mcp/glance-mcp.js`
-- `codex/common/mcp/glance-mcp.js`
-
-If you change the shared runtime, run:
-
-```bash
-npm run sync:mcp-common
-```
-
 ## Adding a new plugin
 
 Create a directory for your agent (e.g. `cursor/`, `cline/`) with the files above and open a PR.
