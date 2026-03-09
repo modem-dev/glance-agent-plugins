@@ -22,7 +22,7 @@ codex mcp add glance -- npx -y @modemdev/glance-codex
 Optional: pin a specific version:
 
 ```bash
-codex mcp add glance -- npx -y @modemdev/glance-codex@0.1.0
+codex mcp add glance -- npx -y @modemdev/glance-codex@0.1.1
 ```
 
 Local development / manual install:
@@ -71,8 +71,8 @@ Prerequisite: configure `NPM_TOKEN` in the `glance-agent-plugins` repository wit
 3. Create and push a matching tag:
 
 ```bash
-git tag codex-v0.1.0
-git push origin codex-v0.1.0
+git tag codex-v0.1.1
+git push origin codex-v0.1.1
 ```
 
 The `Release codex package` workflow validates tag/version alignment, checks for already-published versions, runs `npm pack --dry-run`, and publishes with npm provenance.
