@@ -23,6 +23,7 @@
   "files": [
     ".codex-plugin",
     ".mcp.json",
+    "common/mcp/glance-mcp.js",
     "servers/glance-mcp.js",
     "servers/glance-mcp.d.ts",
     "README.md"

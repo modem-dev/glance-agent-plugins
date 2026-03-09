@@ -4,8 +4,10 @@
   "type": "module",
   "packageManager": "npm@11.6.2",
   "scripts": {
-    "test": "vitest run",
-    "test:coverage": "vitest run --coverage"
+    "sync:mcp-common": "node scripts/sync-mcp-common.mjs",
+    "check:mcp-common": "node scripts/sync-mcp-common.mjs --check",
+    "test": "npm run check:mcp-common && vitest run",
+    "test:coverage": "npm run check:mcp-common && vitest run --coverage"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",
