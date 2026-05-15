@@ -54,7 +54,7 @@ For a local path install, remove that path from your pi settings (or run `pi rem
 
 Releases are automated via GitHub Actions.
 
-Prerequisite: configure `NPM_TOKEN` in the `glance-agent-plugins` repository with publish access to `@modemdev/glance-pi`.
+Prerequisite: configure `NPM_TOKEN` in the `glance` repository with publish access to `@modemdev/glance-pi`.
 
 1. Bump `version` in `pi/package.json`.
 2. Commit and push to `main`.

@@ -1,3 +1,12 @@
 node_modules/
 coverage/
 .DS_Store
+
+# Web app local/deploy artifacts
+apps/web/node_modules/
+apps/web/.next/
+apps/web/coverage/
+apps/web/.env
+apps/web/.env.*
+!apps/web/.env.example
+apps/web/.vercel/

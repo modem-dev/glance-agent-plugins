@@ -17,6 +17,12 @@ export default defineConfig({
   },
   test: {
     clearMocks: true,
+    include: [
+      'opencode/**/*.test.ts',
+      'pi/**/*.test.ts',
+      'claude/**/*.test.ts',
+      'codex/**/*.test.ts',
+    ],
     coverage: {
       include: ["opencode/**/*.ts", "pi/**/*.ts", "claude/**/*.js", "codex/**/*.js"],
       provider: "v8",

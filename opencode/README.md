@@ -51,7 +51,7 @@ Then call `glance_wait` and paste an image in the browser tab — it should retu
 
 Releases are automated via GitHub Actions.
 
-Prerequisite: configure `NPM_TOKEN` in the `glance-agent-plugins` repository with publish access to `@modemdev/glance-opencode`.
+Prerequisite: configure `NPM_TOKEN` in the `glance` repository with publish access to `@modemdev/glance-opencode`.
 
 1. Bump `version` in `opencode/package.json`.
 2. Commit and push to `main`.
