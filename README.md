@@ -44,6 +44,18 @@ Each plugin directory should include:
 
 Create a directory for your agent (e.g. `cursor/`, `cline/`) with the files above and open a PR.
 
+## Sponsor
+
+Sponsored by [Modem](https://modem.dev?utm_source=github&utm_medium=oss&utm_campaign=oss_glance_agent_plugins&utm_content=readme_footer).
+
+<a href="https://modem.dev?utm_source=github&utm_medium=oss&utm_campaign=oss_glance_agent_plugins&utm_content=readme_footer">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://modem.dev/images/logo/svg/modem-combined-white.svg">
+    <source media="(prefers-color-scheme: light)" srcset="https://modem.dev/images/logo/svg/modem-combined-black.svg">
+    <img src="https://modem.dev/images/logo/svg/modem-combined-black.svg" alt="Modem" width="220">
+  </picture>
+</a>
+
 ## License
 
 MIT
