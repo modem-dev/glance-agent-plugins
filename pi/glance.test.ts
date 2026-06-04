@@ -255,48 +255,20 @@ describe("pi/glance", () => {
     expect(__testing.getState().currentSession).toBeNull();
   });
 
-  it("starts the background listener on session_start and forwards pasted images", async () => {
-    const session = {
-      id: "session-3",
-      url: "https://glance.sh/s/session-3",
-    } satisfies SessionResponse;
-    const image = {
-      url: "https://cdn.glance.sh/image-2.png",
-      expiresAt: 456,
-    } satisfies ImageEvent;
-
-    const fetchMock = vi.fn(async (input: string | URL) => {
-      const url = String(input);
-
-      if (url === "https://glance.sh/api/session") {
-        return jsonResponse(session);
-      }
-
-      if (url === `https://glance.sh/api/session/${session.id}/events`) {
-        return sseResponse([
-          `event: image\ndata: ${JSON.stringify(image)}\n\n`,
-        ]);
-      }
-
-      throw new Error(`Unexpected fetch: ${url}`);
-    });
+  it("does not start the background listener on session_start", async () => {
+    const fetchMock = vi.fn();
     vi.stubGlobal("fetch", fetchMock);
 
-    const pi = createPi({ autoShutdownOnMessage: true });
+    const pi = createPi();
     glanceExtension(pi.api as never);
 
-    await pi.emit("session_start");
-
-    await vi.waitFor(() => {
-      expect(pi.api.sendUserMessage).toHaveBeenCalledWith(
-        `Screenshot: ${image.url}`,
-        { deliverAs: "followUp" },
-      );
-    });
-
-    await vi.waitFor(() => {
-      expect(__testing.getState().running).toBe(false);
-    });
+    expect(pi.api.on).not.toHaveBeenCalledWith(
+      "session_start",
+      expect.any(Function),
+    );
+    expect(fetchMock).not.toHaveBeenCalled();
+    expect(pi.api.sendUserMessage).not.toHaveBeenCalled();
+    expect(__testing.getState().running).toBe(false);
   });
 
   it("registers distinct waiters even within the same millisecond", async () => {
