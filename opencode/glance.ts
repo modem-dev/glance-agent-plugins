@@ -1,9 +1,8 @@
 /**
  * glance.sh – Live image paste from browser to agent.
  *
- * OpenCode plugin that maintains a persistent glance.sh session in the
- * background. Images pasted by the user are automatically surfaced to
- * the LLM.
+ * OpenCode plugin that starts a glance.sh session on demand. Images pasted
+ * while the session is active are automatically surfaced to the LLM.
  *
  * Registers a `glance` tool — the LLM can call it to request a
  * screenshot; it surfaces the existing session URL and waits for a
@@ -223,10 +222,8 @@ export const GlancePlugin: Plugin = async ({ client }) => {
     dispatchToWaiters(image)
   }
 
-  // Start background listener immediately
-  if (!running) {
-    backgroundLoop(handleImage).catch(() => {})
-  }
+  // Do not start the background listener immediately. Idle agents should not
+  // hold an SSE connection; the glance tool starts it on demand.
 
   return {
     event: async ({ event }) => {

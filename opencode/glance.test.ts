@@ -98,14 +98,15 @@ describe("opencode glance plugin", () => {
   })
 
   describe("glance tool", () => {
-    it("creates a session and returns the URL", async () => {
-      vi.stubGlobal(
-        "fetch",
-        routedFetch({ session: { id: "abc123", url: "/s/abc123" } }),
-      )
+    it("does not create a session until the glance tool is called", async () => {
+      const fetchFn = routedFetch({ session: { id: "abc123", url: "/s/abc123" } })
+      vi.stubGlobal("fetch", fetchFn)
 
       const GlancePlugin = await loadPlugin()
       const plugin = await GlancePlugin(mockClient())
+
+      expect(fetchFn).not.toHaveBeenCalled()
+
       const result = await plugin.tool.glance.execute({})
 
       expect(result).toContain("https://glance.sh/s/abc123")
@@ -121,9 +122,6 @@ describe("opencode glance plugin", () => {
       const GlancePlugin = await loadPlugin()
       const plugin = await GlancePlugin(mockClient())
 
-      // Let background loop create its session
-      await new Promise((r) => setTimeout(r, 20))
-
       const r1 = await plugin.tool.glance.execute({})
       const r2 = await plugin.tool.glance.execute({})
 
@@ -136,9 +134,6 @@ describe("opencode glance plugin", () => {
 
       const GlancePlugin = await loadPlugin()
       const plugin = await GlancePlugin(mockClient())
-
-      // Wait for background loop to fail
-      await new Promise((r) => setTimeout(r, 50))
 
       const result = await plugin.tool.glance.execute({})
       expect(result).toContain("Failed to create session")
@@ -154,9 +149,6 @@ describe("opencode glance plugin", () => {
 
       const GlancePlugin = await loadPlugin()
       const plugin = await GlancePlugin(mockClient())
-
-      // Give background loop time to fail
-      await new Promise((r) => setTimeout(r, 50))
 
       const ctx = mockContext()
       const result = await plugin.tool.glance_wait.execute({}, ctx)

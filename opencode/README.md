@@ -4,12 +4,12 @@
 
 ## What it does
 
-Maintains a **persistent background session** on glance.sh. Paste an image anytime — the agent receives it instantly.
+Starts a glance.sh session **on demand**. Idle OpenCode sessions do not keep a background connection open.
 
-- **Background listener** — starts when OpenCode launches, reconnects automatically, refreshes sessions before they expire.
+- **On-demand listener** — starts when the `glance` tool is used, reconnects automatically, refreshes sessions before they expire.
 - **`glance` tool** — the LLM calls it when it needs to see something visual. Surfaces the session URL.
 - **`glance_wait` tool** — waits for the next paste and returns the image URL.
-- **Multiple images** — paste as many images as you want during a session.
+- **Multiple images** — paste as many images as you want while the listener is active.
 
 ## Install
 
@@ -24,7 +24,7 @@ Add the plugin to your global `~/.config/opencode/opencode.json` or project `ope
 }
 ```
 
-Restart OpenCode. The background session starts automatically.
+Restart OpenCode. The background session starts when the `glance` tool is used.
 
 Optional: pin a specific version:
 
@@ -80,11 +80,9 @@ ln -s "$(pwd)/glance.ts" .opencode/plugins/glance.ts
 ## How it works
 
 ```text
-opencode starts
+LLM calls glance tool
   └─▶ plugin creates session on glance.sh
   └─▶ connects SSE (background, auto-reconnect)
-
-LLM calls glance tool
   └─▶ surfaces session URL
 
 LLM calls glance_wait tool
@@ -107,4 +105,4 @@ session expires (~10 min)
 
 No API keys required — sessions are anonymous and ephemeral (10-minute TTL).
 
-The plugin connects to `https://glance.sh` by default. The SSE connection is held for ~5 minutes per cycle, with automatic reconnection.
+The plugin connects to `https://glance.sh` by default. Once started, the SSE connection is held for ~5 minutes per cycle, with automatic reconnection.

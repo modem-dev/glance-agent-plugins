@@ -1,9 +1,8 @@
 /**
  * glance.sh – Live image paste from browser to agent.
  *
- * Pi extension that maintains a persistent glance.sh session in the
- * background. Images pasted by the user are automatically injected
- * into the conversation.
+ * Pi extension that starts a glance.sh session on demand. Images pasted
+ * while the session is active are automatically injected into the conversation.
  *
  * Also registers:
  *   - `/glance` command — shows the session URL and opens it
@@ -308,12 +307,8 @@ export default function (pi: ExtensionAPI) {
     pi.sendUserMessage(`Screenshot: ${image.url}`, { deliverAs: "followUp" });
   }
 
-  // Start background listener when session starts
-  pi.on("session_start", async () => {
-    if (!running) {
-      backgroundLoop(pi, handleImage).catch(() => {});
-    }
-  });
+  // Do not start the background listener on session_start. Idle agents should
+  // not hold an SSE connection; /glance or the glance tool starts it on demand.
 
   // Stop on shutdown
   pi.on("session_shutdown", async () => {

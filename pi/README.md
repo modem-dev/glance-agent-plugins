@@ -4,12 +4,12 @@
 
 ## What it does
 
-Maintains a **persistent background session** on glance.sh. Paste an image anytime — the agent receives it instantly.
+Starts a glance.sh session **on demand**. Idle pi sessions do not keep a background connection open.
 
-- **Background listener** — starts when pi launches, reconnects automatically, refreshes sessions before they expire.
+- **On-demand listener** — starts when `/glance` or the `glance` tool is used, reconnects automatically, refreshes sessions before they expire.
 - **`glance` tool** — the LLM calls it when it needs to see something visual. Surfaces the session URL and waits for the next paste.
-- **`/glance` command** — type it to see the current session URL.
-- **Multiple images** — paste as many images as you want. Each one is injected into the conversation as `Screenshot: <url>`.
+- **`/glance` command** — type it to create/show the current session URL.
+- **Multiple images** — paste as many images as you want while the listener is active. Each one is injected into the conversation as `Screenshot: <url>`.
 
 ## Install
 
@@ -82,7 +82,7 @@ cp glance.ts ~/.pi/agent/extensions/glance.ts
 ## How it works
 
 ```text
-pi starts
+user or LLM invokes /glance or the glance tool
   └─▶ create session on glance.sh
   └─▶ connect SSE (background, auto-reconnect)
 
@@ -94,7 +94,7 @@ session expires (~10 min)
   └─▶ extension creates new session, reconnects
 ```
 
-The `glance` tool reuses the existing background session — it just surfaces the URL and waits for the next image rather than creating a new session each time.
+The `glance` tool reuses an active background session when one exists; otherwise it creates a session and starts the listener.
 
 ## Requirements
 
@@ -105,4 +105,4 @@ The `glance` tool reuses the existing background session — it just surfaces th
 
 No API keys required — sessions are anonymous and ephemeral (10-minute TTL).
 
-The extension connects to `https://glance.sh` by default. The SSE connection is held for ~5 minutes per cycle, with automatic reconnection.
+The extension connects to `https://glance.sh` by default. Once started, the SSE connection is held for ~5 minutes per cycle, with automatic reconnection.
