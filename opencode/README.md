@@ -6,10 +6,9 @@
 
 Starts a glance.sh session **on demand**. Idle OpenCode sessions do not keep a background connection open.
 
-- **On-demand listener** — starts when the `glance` tool is used, reconnects automatically, refreshes sessions before they expire.
+- **On-demand listener** — starts when the `glance` tool is used. It stops after one image, timeout, expiry, cancellation, or a small number of transient retries.
 - **`glance` tool** — the LLM calls it when it needs to see something visual. Surfaces the session URL.
 - **`glance_wait` tool** — waits for the next paste and returns the image URL.
-- **Multiple images** — paste as many images as you want while the listener is active.
 
 ## Install
 
@@ -31,7 +30,7 @@ Optional: pin a specific version:
 ```json
 {
   "$schema": "https://opencode.ai/config.json",
-  "plugin": ["@modemdev/glance-opencode@0.1.0"]
+  "plugin": ["@modemdev/glance-opencode@0.1.1"]
 }
 ```
 
@@ -58,8 +57,8 @@ Prerequisite: configure `NPM_TOKEN` in the `glance-agent-plugins` repository wit
 3. Create and push a matching tag:
 
 ```bash
-git tag opencode-v0.1.0
-git push origin opencode-v0.1.0
+git tag opencode-v0.1.1
+git push origin opencode-v0.1.1
 ```
 
 The `Release opencode package` workflow validates the tag/version match and publishes with npm provenance.
@@ -82,7 +81,7 @@ ln -s "$(pwd)/glance.ts" .opencode/plugins/glance.ts
 ```text
 LLM calls glance tool
   └─▶ plugin creates session on glance.sh
-  └─▶ connects SSE (background, auto-reconnect)
+  └─▶ connects SSE for one wait window
   └─▶ surfaces session URL
 
 LLM calls glance_wait tool
@@ -91,9 +90,10 @@ LLM calls glance_wait tool
 user pastes image at /s/<id>
   └─▶ SSE emits "image" event
   └─▶ glance_wait returns image URL to LLM
+  └─▶ listener stops
 
-session expires (~10 min)
-  └─▶ plugin creates new session, reconnects
+no image arrives within ~5 min, session expires, or request is cancelled
+  └─▶ listener stops
 ```
 
 ## Requirements
@@ -105,4 +105,4 @@ session expires (~10 min)
 
 No API keys required — sessions are anonymous and ephemeral (10-minute TTL).
 
-The plugin connects to `https://glance.sh` by default. Once started, the SSE connection is held for ~5 minutes per cycle, with automatic reconnection.
+The plugin connects to `https://glance.sh` by default. Once started, the SSE connection is held for up to ~5 minutes, then stops unless the agent invokes glance again.

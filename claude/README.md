@@ -9,7 +9,7 @@ Adds two MCP tools:
 - **`glance`** — creates/reuses a live session and returns a URL like `https://glance.sh/s/<id>`
 - **`glance_wait`** — waits for the next pasted image and returns `Screenshot: https://glance.sh/<token>.<ext>`
 
-The server keeps a background SSE listener alive, reconnects automatically, and refreshes sessions before they expire.
+The server opens an SSE listener on demand and stops after one image, timeout, expiry, cancellation, or a small number of transient retries.
 
 ## Install
 
@@ -64,8 +64,8 @@ Prerequisite: configure `NPM_TOKEN` in the `glance-agent-plugins` repository wit
 3. Create and push a matching tag:
 
 ```bash
-git tag claude-v0.1.0
-git push origin claude-v0.1.0
+git tag claude-v0.1.1
+git push origin claude-v0.1.1
 ```
 
 The `Release claude package` workflow validates tag/version alignment, checks for already-published versions, runs `npm pack --dry-run`, and publishes with npm provenance.
@@ -75,6 +75,7 @@ The `Release claude package` workflow validates tag/version alignment, checks fo
 ```text
 Claude calls glance
   └─▶ MCP server POST /api/session
+  └─▶ connects SSE for one wait window
   └─▶ returns session URL
 
 Claude calls glance_wait
@@ -83,6 +84,7 @@ Claude calls glance_wait
 User pastes image at /s/<id>
   └─▶ glance.sh emits image event
   └─▶ tool returns Screenshot: <url>
+  └─▶ listener stops
 ```
 
 ## Requirements

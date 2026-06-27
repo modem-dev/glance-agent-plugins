@@ -1,6 +1,6 @@
 {
   "name": "@modemdev/glance-pi",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "glance.sh extension package for pi",
   "license": "MIT",
   "repository": {

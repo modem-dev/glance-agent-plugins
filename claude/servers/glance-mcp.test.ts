@@ -155,9 +155,20 @@ describe("claude glance runtime", () => {
 
     expect(result.content[0].text).toContain("Session ready")
     expect(result.content[0].text).toContain("https://glance.sh/s/sess-1")
-    expect(fetchMock).toHaveBeenCalledWith("https://glance.sh/api/session", {
+    expect(fetchMock).toHaveBeenNthCalledWith(1, "https://glance.sh/api/session", {
       method: "POST",
+      headers: { "User-Agent": "glance-mcp/0.1.2" },
     })
+    expect(fetchMock).toHaveBeenNthCalledWith(
+      2,
+      "https://glance.sh/api/session/sess-1/events",
+      expect.objectContaining({
+        headers: {
+          Accept: "text/event-stream",
+          "User-Agent": "glance-mcp/0.1.2",
+        },
+      }),
+    )
   })
 
   it("reuses active sessions and refreshes stale sessions", async () => {
@@ -236,7 +247,7 @@ describe("claude glance runtime", () => {
     await sse.close()
   })
 
-  it("handles session expiry by rotating to a fresh session", async () => {
+  it("handles session expiry without reconnecting until the next tool call", async () => {
     let sessionCalls = 0
 
     const fetchMock = vi.fn((input: string | URL, init?: RequestInit) => {
@@ -268,13 +279,16 @@ describe("claude glance runtime", () => {
     await runtime.executeTool("glance")
 
     await vi.waitFor(() => {
-      expect(sessionCalls).toBe(2)
+      expect(runtime.getState().running).toBe(false)
     })
 
-    expect(runtime.getState().currentSession).toEqual({
-      id: "sess-2",
-      url: "https://glance.sh/s/sess-2",
-    })
+    expect(sessionCalls).toBe(1)
+    expect(runtime.getState().currentSession).toBeNull()
+
+    const refreshed = (await runtime.executeTool("glance")) as ToolResult
+
+    expect(sessionCalls).toBe(2)
+    expect(refreshed.content[0].text).toContain("https://glance.sh/s/sess-2")
   })
 
   it("returns a helpful error when glance_wait is called before glance", async () => {
