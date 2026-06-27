@@ -20,12 +20,16 @@ import type { ExtensionAPI } from "@mariozechner/pi-coding-agent";
 import { Text } from "@mariozechner/pi-tui";
 
 const BASE_URL = "https://glance.sh";
+const USER_AGENT = "glance-pi/0.1.1";
 
 /** How long to wait on a single SSE connection before reconnecting. */
 const SSE_TIMEOUT_MS = 305_000;
 
 /** Pause between reconnect attempts on error. */
 const RECONNECT_DELAY_MS = 3_000;
+
+/** Maximum transient SSE retries for one user-triggered wait window. */
+const MAX_RECONNECT_ATTEMPTS = 3;
 
 /** How often to create a fresh session (sessions have 10-min TTL). */
 const SESSION_REFRESH_MS = 8 * 60 * 1000; // 8 minutes — well before expiry
@@ -62,7 +66,10 @@ let running = false;
 let waiterCounter = 0;
 
 async function createSession(): Promise<SessionResponse> {
-  const res = await fetch(`${BASE_URL}/api/session`, { method: "POST" });
+  const res = await fetch(`${BASE_URL}/api/session`, {
+    method: "POST",
+    headers: { "User-Agent": USER_AGENT },
+  });
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   const session = (await res.json()) as SessionResponse;
   session.url = normalizeSessionUrl(session.url);
@@ -90,6 +97,8 @@ async function backgroundLoop(
   abortController = new AbortController();
   const { signal } = abortController;
 
+  let reconnectAttempts = 0;
+
   while (!signal.aborted) {
     try {
       // Create or refresh session
@@ -102,12 +111,16 @@ async function backgroundLoop(
         onImage(image);
       });
 
-      // listenForImages returned normally → SSE timed out or session expired.
-      // Loop will reconnect (and refresh session if stale).
+      // Stop after one active wait window (image, timeout, or expiry). Idle
+      // agents must not keep refreshing sessions indefinitely.
+      break;
     } catch (err: any) {
       if (signal.aborted) break;
-      // Transient error — wait and retry
-      await sleep(RECONNECT_DELAY_MS);
+      reconnectAttempts += 1;
+      if (reconnectAttempts >= MAX_RECONNECT_ATTEMPTS) break;
+
+      // Transient error — wait briefly and retry with capped backoff.
+      await sleep(RECONNECT_DELAY_MS * 2 ** (reconnectAttempts - 1));
     }
   }
 
@@ -150,7 +163,10 @@ async function listenForImages(
 ): Promise<void> {
   const res = await fetch(`${BASE_URL}/api/session/${sessionId}/events`, {
     signal,
-    headers: { Accept: "text/event-stream" },
+    headers: {
+      Accept: "text/event-stream",
+      "User-Agent": USER_AGENT,
+    },
   });
 
   if (!res.ok || !res.body) {
@@ -191,6 +207,8 @@ async function listenForImages(
           if (eventType === "image" && dataLines.length > 0) {
             const data = JSON.parse(dataLines.join("\n")) as ImageEvent;
             onImage(data);
+            clearTimeout(timeout);
+            return;
           }
           if (eventType === "expired") {
             // Session gone — force refresh on next loop iteration
@@ -320,17 +338,18 @@ export default function (pi: ExtensionAPI) {
   pi.registerCommand("glance", {
     description: "Show the glance.sh session URL (paste screenshots there)",
     handler: async (_args, ctx) => {
-      if (!currentSession) {
+      if (!currentSession || isSessionStale()) {
         ctx.ui.notify("No active glance session — starting one…", "info");
         try {
           await createSession();
-          if (!running) {
-            backgroundLoop(pi, handleImage).catch(() => {});
-          }
         } catch (err: any) {
           ctx.ui.notify(`Failed to create session: ${err.message}`, "error");
           return;
         }
+      }
+
+      if (!running) {
+        backgroundLoop(pi, handleImage).catch(() => {});
       }
 
       ctx.ui.notify(
@@ -353,12 +372,9 @@ export default function (pi: ExtensionAPI) {
 
     async execute(_toolCallId, _params, signal, onUpdate, ctx) {
       // Ensure session exists
-      if (!currentSession) {
+      if (!currentSession || isSessionStale()) {
         try {
           await createSession();
-          if (!running) {
-            backgroundLoop(pi, handleImage).catch(() => {});
-          }
         } catch (err: any) {
           return {
             content: [{ type: "text", text: `Failed to create session: ${err.message}` }],
@@ -366,6 +382,10 @@ export default function (pi: ExtensionAPI) {
             isError: true,
           };
         }
+      }
+
+      if (!running) {
+        backgroundLoop(pi, handleImage).catch(() => {});
       }
 
       const sessionUrl = currentSession!.url;

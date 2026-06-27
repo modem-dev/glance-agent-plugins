@@ -2,12 +2,16 @@ import { realpathSync } from "node:fs"
 import { fileURLToPath, pathToFileURL } from "node:url"
 
 const DEFAULT_BASE_URL = process.env.GLANCE_BASE_URL?.trim() || "https://glance.sh"
+const USER_AGENT = "glance-mcp/0.1.2"
 
 /** How long to wait on one SSE connection before reconnecting. */
 const SSE_TIMEOUT_MS = 305_000
 
 /** Pause between reconnect attempts on transient errors. */
 const RECONNECT_DELAY_MS = 3_000
+
+/** Maximum transient SSE retries for one user-triggered wait window. */
+const MAX_RECONNECT_ATTEMPTS = 3
 
 /** How often to mint a fresh session (sessions have 10-minute TTL). */
 const SESSION_REFRESH_MS = 8 * 60 * 1000
@@ -106,7 +110,10 @@ export function createGlanceRuntime(options = {}) {
   }
 
   async function createSession() {
-    const res = await fetchImpl(`${baseUrl}/api/session`, { method: "POST" })
+    const res = await fetchImpl(`${baseUrl}/api/session`, {
+      method: "POST",
+      headers: { "User-Agent": USER_AGENT },
+    })
     if (!res.ok) {
       throw new Error(`HTTP ${res.status}`)
     }
@@ -154,7 +161,10 @@ export function createGlanceRuntime(options = {}) {
   async function listenForImages(sessionId, signal) {
     const res = await fetchImpl(`${baseUrl}/api/session/${sessionId}/events`, {
       signal,
-      headers: { Accept: "text/event-stream" },
+      headers: {
+        Accept: "text/event-stream",
+        "User-Agent": USER_AGENT,
+      },
     })
 
     if (!res.ok || !res.body) {
@@ -214,6 +224,7 @@ export function createGlanceRuntime(options = {}) {
                 typeof image.expiresAt === "number"
               ) {
                 dispatchToWaiters(image)
+                return
               }
             } catch {
               log("Failed to parse image event payload")
@@ -240,13 +251,22 @@ export function createGlanceRuntime(options = {}) {
   }
 
   async function backgroundLoop(signal) {
+    let reconnectAttempts = 0
+
     while (!signal.aborted) {
       try {
         const session = await ensureSession()
         await listenForImages(session.id, signal)
+
+        // Stop after one active wait window (image, timeout, or expiry). Idle
+        // agents must not keep refreshing sessions indefinitely.
+        break
       } catch (err) {
         if (signal.aborted) break
-        await sleep(RECONNECT_DELAY_MS, signal)
+        reconnectAttempts += 1
+        if (reconnectAttempts >= MAX_RECONNECT_ATTEMPTS) break
+
+        await sleep(RECONNECT_DELAY_MS * 2 ** (reconnectAttempts - 1), signal)
       }
     }
 
@@ -475,7 +495,7 @@ export function createMcpServer(options = {}) {
         protocolVersion: params?.protocolVersion ?? "2024-11-05",
         serverInfo: {
           name: "glance-sh",
-          version: "0.1.0",
+          version: "0.1.2",
         },
         capabilities: {
           tools: {

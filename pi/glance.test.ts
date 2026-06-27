@@ -208,6 +208,7 @@ describe("pi/glance", () => {
     });
     expect(fetchMock).toHaveBeenCalledWith("https://glance.sh/api/session", {
       method: "POST",
+      headers: { "User-Agent": "glance-pi/0.1.1" },
     });
     expect(__testing.getState().currentSession).toEqual({
       ...session,
@@ -219,7 +220,7 @@ describe("pi/glance", () => {
     expect(__testing.isSessionStale()).toBe(true);
   });
 
-  it("parses image SSE events and clears the session on expiry", async () => {
+  it("parses image SSE events and stops listening after the first image", async () => {
     const session = {
       id: "session-2",
       url: "https://glance.sh/s/session-2",
@@ -247,12 +248,15 @@ describe("pi/glance", () => {
     expect(fetchMock).toHaveBeenCalledWith(
       `https://glance.sh/api/session/${session.id}/events`,
       {
-        headers: { Accept: "text/event-stream" },
+        headers: {
+          Accept: "text/event-stream",
+          "User-Agent": "glance-pi/0.1.1",
+        },
         signal: expect.any(AbortSignal),
       },
     );
     expect(onImage).toHaveBeenCalledWith(image);
-    expect(__testing.getState().currentSession).toBeNull();
+    expect(__testing.getState().currentSession).toEqual(session);
   });
 
   it("does not start the background listener on session_start", async () => {
@@ -314,7 +318,17 @@ describe("pi/glance", () => {
       `Paste screenshots at ${session.url}`,
       "info",
     );
-    expect(globalThis.fetch).not.toHaveBeenCalled();
+    expect(globalThis.fetch).toHaveBeenCalledWith(
+      `https://glance.sh/api/session/${session.id}/events`,
+      expect.objectContaining({
+        headers: {
+          Accept: "text/event-stream",
+          "User-Agent": "glance-pi/0.1.1",
+        },
+      }),
+    );
+
+    __testing.stopBackground();
   });
 
   it("creates a session through the /glance command when none exists", async () => {

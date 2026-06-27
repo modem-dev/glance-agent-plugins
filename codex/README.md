@@ -9,7 +9,7 @@ Adds two MCP tools:
 - **`glance`** — creates/reuses a live session and returns a URL like `https://glance.sh/s/<id>`
 - **`glance_wait`** — waits for the next pasted image and returns `Screenshot: https://glance.sh/<token>.<ext>`
 
-The server keeps a background SSE listener alive, reconnects automatically, and refreshes sessions before they expire.
+The server opens an SSE listener on demand and stops after one image, timeout, expiry, cancellation, or a small number of transient retries.
 
 ## Install
 
@@ -22,7 +22,7 @@ codex mcp add glance -- npx -y @modemdev/glance-codex
 Optional: pin a specific version:
 
 ```bash
-codex mcp add glance -- npx -y @modemdev/glance-codex@0.1.1
+codex mcp add glance -- npx -y @modemdev/glance-codex@0.1.2
 ```
 
 Local development / manual install:
@@ -71,8 +71,8 @@ Prerequisite: configure `NPM_TOKEN` in the `glance-agent-plugins` repository wit
 3. Create and push a matching tag:
 
 ```bash
-git tag codex-v0.1.1
-git push origin codex-v0.1.1
+git tag codex-v0.1.2
+git push origin codex-v0.1.2
 ```
 
 The `Release codex package` workflow validates tag/version alignment, checks for already-published versions, runs `npm pack --dry-run`, and publishes with npm provenance.
@@ -82,6 +82,7 @@ The `Release codex package` workflow validates tag/version alignment, checks for
 ```text
 Codex calls glance
   └─▶ MCP server POST /api/session
+  └─▶ connects SSE for one wait window
   └─▶ returns session URL
 
 Codex calls glance_wait
@@ -90,6 +91,7 @@ Codex calls glance_wait
 User pastes image at /s/<id>
   └─▶ glance.sh emits image event
   └─▶ tool returns Screenshot: <url>
+  └─▶ listener stops
 ```
 
 ## Requirements

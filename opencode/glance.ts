@@ -17,12 +17,16 @@
 import { type Plugin, tool } from "@opencode-ai/plugin"
 
 const BASE_URL = "https://glance.sh"
+const USER_AGENT = "glance-opencode/0.1.1"
 
 /** How long to wait on a single SSE connection before reconnecting. */
 const SSE_TIMEOUT_MS = 305_000
 
 /** Pause between reconnect attempts on error. */
 const RECONNECT_DELAY_MS = 3_000
+
+/** Maximum transient SSE retries for one user-triggered wait window. */
+const MAX_RECONNECT_ATTEMPTS = 3
 
 /** How often to create a fresh session (sessions have 10-min TTL). */
 const SESSION_REFRESH_MS = 8 * 60 * 1000
@@ -39,6 +43,10 @@ interface ImageEvent {
   expiresAt: number
 }
 
+function normalizeSessionUrl(url: string): string {
+  return new URL(url, BASE_URL).toString()
+}
+
 // ── Persistent background session ──────────────────────────────────
 
 let currentSession: SessionResponse | null = null
@@ -48,9 +56,13 @@ let running = false
 let waiterCounter = 0
 
 async function createSession(): Promise<SessionResponse> {
-  const res = await fetch(`${BASE_URL}/api/session`, { method: "POST" })
+  const res = await fetch(`${BASE_URL}/api/session`, {
+    method: "POST",
+    headers: { "User-Agent": USER_AGENT },
+  })
   if (!res.ok) throw new Error(`HTTP ${res.status}`)
   const session = (await res.json()) as SessionResponse
+  session.url = normalizeSessionUrl(session.url)
   currentSession = session
   sessionCreatedAt = Date.now()
   return session
@@ -72,6 +84,8 @@ async function backgroundLoop(onImage: (image: ImageEvent) => void) {
   abortController = new AbortController()
   const { signal } = abortController
 
+  let reconnectAttempts = 0
+
   while (!signal.aborted) {
     try {
       if (!currentSession || isSessionStale()) {
@@ -81,9 +95,16 @@ async function backgroundLoop(onImage: (image: ImageEvent) => void) {
       await listenForImages(currentSession!.id, signal, (image) => {
         onImage(image)
       })
+
+      // Stop after one active wait window (image, timeout, or expiry). Idle
+      // agents must not keep refreshing sessions indefinitely.
+      break
     } catch (err: any) {
       if (signal.aborted) break
-      await sleep(RECONNECT_DELAY_MS)
+      reconnectAttempts += 1
+      if (reconnectAttempts >= MAX_RECONNECT_ATTEMPTS) break
+
+      await sleep(RECONNECT_DELAY_MS * 2 ** (reconnectAttempts - 1))
     }
   }
 
@@ -118,7 +139,10 @@ async function listenForImages(
 ): Promise<void> {
   const res = await fetch(`${BASE_URL}/api/session/${sessionId}/events`, {
     signal,
-    headers: { Accept: "text/event-stream" },
+    headers: {
+      Accept: "text/event-stream",
+      "User-Agent": USER_AGENT,
+    },
   })
 
   if (!res.ok || !res.body) {
@@ -159,6 +183,8 @@ async function listenForImages(
           if (eventType === "image" && dataLines.length > 0) {
             const data = JSON.parse(dataLines.join("\n")) as ImageEvent
             onImage(data)
+            clearTimeout(timeout)
+            return
           }
           if (eventType === "expired") {
             currentSession = null
@@ -243,18 +269,19 @@ export const GlancePlugin: Plugin = async ({ client }) => {
         args: {},
         async execute() {
           // Ensure session exists
-          if (!currentSession) {
+          if (!currentSession || isSessionStale()) {
             try {
               await createSession()
-              if (!running) {
-                backgroundLoop(handleImage).catch(() => {})
-              }
             } catch (err: any) {
               return `Failed to create session: ${err.message}`
             }
           }
 
-          const sessionUrl = `${BASE_URL}${currentSession!.url}`
+          if (!running) {
+            backgroundLoop(handleImage).catch(() => {})
+          }
+
+          const sessionUrl = currentSession!.url
           return `Session ready. Ask the user to paste an image at ${sessionUrl}`
         },
       }),
@@ -270,7 +297,11 @@ export const GlancePlugin: Plugin = async ({ client }) => {
             return "No active session. Call glance first to create one."
           }
 
-          const sessionUrl = `${BASE_URL}${currentSession!.url}`
+          if (!running) {
+            backgroundLoop(handleImage).catch(() => {})
+          }
+
+          const sessionUrl = currentSession!.url
 
           context.metadata({
             title: `Waiting for paste at ${sessionUrl}`,
