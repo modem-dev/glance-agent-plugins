@@ -28,7 +28,7 @@ codex mcp add glance -- npx -y @modemdev/glance-codex@0.1.2
 Local development / manual install:
 
 ```bash
-codex mcp add glance -- node /absolute/path/to/glance-agent-plugins/codex/servers/glance-mcp.js
+codex mcp add glance -- node /absolute/path/to/glance/codex/servers/glance-mcp.js
 ```
 
 ## Verify
@@ -64,7 +64,7 @@ codex mcp remove glance
 
 Releases are automated via GitHub Actions.
 
-Prerequisite: configure `NPM_TOKEN` in the `glance-agent-plugins` repository with publish access to `@modemdev/glance-codex`.
+Prerequisite: configure `NPM_TOKEN` in the `glance` repository with publish access to `@modemdev/glance-codex`.
 
 1. Bump `version` in `codex/package.json`.
 2. Commit and push to `main`.

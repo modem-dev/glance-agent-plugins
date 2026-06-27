@@ -11,7 +11,7 @@
  *
  * Install:
  *   - Recommended: `pi install npm:@modemdev/glance-pi`
- *   - Local checkout: `pi install /path/to/glance-agent-plugins/pi`
+ *   - Local checkout: `pi install /path/to/glance/pi`
  *   - Manual fallback: symlink/copy into ~/.pi/agent/extensions/glance.ts
  */
 

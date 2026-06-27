@@ -1,0 +1,12 @@
+.next
+node_modules
+*.tsbuildinfo
+.env
+.env.local
+.env.*.local
+npm-debug.log*
+.vercel
+coverage
+
+# Sentry Config File
+.env.sentry-build-plugin

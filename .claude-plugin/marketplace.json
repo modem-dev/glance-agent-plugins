@@ -1,6 +1,6 @@
 {
   "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
-  "name": "glance-agent-plugins",
+  "name": "glance",
   "version": "1.0.0",
   "description": "glance.sh plugins for coding agents",
   "metadata": {

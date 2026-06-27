@@ -5,8 +5,8 @@
   "author": {
     "name": "Modem"
   },
-  "homepage": "https://github.com/modem-dev/glance-agent-plugins/tree/main/claude",
-  "repository": "https://github.com/modem-dev/glance-agent-plugins",
+  "homepage": "https://github.com/modem-dev/glance/tree/main/claude",
+  "repository": "https://github.com/modem-dev/glance",
   "license": "MIT",
   "keywords": ["claude-code", "mcp", "glance", "screenshots", "agent"],
   "mcpServers": "./.mcp.json"

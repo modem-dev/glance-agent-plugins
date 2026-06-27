@@ -16,8 +16,8 @@ The server opens an SSE listener on demand and stops after one image, timeout, e
 Recommended (npm-backed marketplace plugin):
 
 ```text
-/plugin marketplace add modem-dev/glance-agent-plugins
-/plugin install glance-claude@glance-agent-plugins
+/plugin marketplace add modem-dev/glance
+/plugin install glance-claude@glance
 ```
 
 This plugin is distributed as `@modemdev/glance-claude` and installed through Claude Code's plugin marketplace flow.
@@ -49,13 +49,13 @@ claude --plugin-dir ./claude
 - Update: `/plugin update glance-claude`
 - Remove: `/plugin uninstall glance-claude`
 
-If you have multiple plugins with the same name from different marketplaces, use the fully qualified form (`glance-claude@glance-agent-plugins`).
+If you have multiple plugins with the same name from different marketplaces, use the fully qualified form (`glance-claude@glance`).
 
 ## Publishing (maintainers)
 
 Releases are automated via GitHub Actions.
 
-Prerequisite: configure `NPM_TOKEN` in the `glance-agent-plugins` repository with publish access to `@modemdev/glance-claude`.
+Prerequisite: configure `NPM_TOKEN` in the `glance` repository with publish access to `@modemdev/glance-claude`.
 
 1. Bump `version` in both:
    - `claude/package.json`

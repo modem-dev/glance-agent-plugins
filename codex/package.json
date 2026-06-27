@@ -6,12 +6,12 @@
   "type": "module",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/modem-dev/glance-agent-plugins.git",
+    "url": "git+https://github.com/modem-dev/glance.git",
     "directory": "codex"
   },
-  "homepage": "https://github.com/modem-dev/glance-agent-plugins/tree/main/codex",
+  "homepage": "https://github.com/modem-dev/glance/tree/main/codex",
   "bugs": {
-    "url": "https://github.com/modem-dev/glance-agent-plugins/issues"
+    "url": "https://github.com/modem-dev/glance/issues"
   },
   "keywords": [
     "codex",
