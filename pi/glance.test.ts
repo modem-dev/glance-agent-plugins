@@ -220,7 +220,7 @@ describe("pi/glance", () => {
     expect(__testing.isSessionStale()).toBe(true);
   });
 
-  it("parses image SSE events and stops listening after the first image", async () => {
+  it("parses image SSE events and stops listening after the first new image", async () => {
     const session = {
       id: "session-2",
       url: "https://glance.sh/s/session-2",
@@ -257,6 +257,47 @@ describe("pi/glance", () => {
     );
     expect(onImage).toHaveBeenCalledWith(image);
     expect(__testing.getState().currentSession).toEqual(session);
+  });
+
+  it("retries a replayed image when delivery previously failed", async () => {
+    const session = {
+      id: "session-retry",
+      url: "https://glance.sh/s/session-retry",
+    } satisfies SessionResponse;
+    const image = {
+      url: "https://cdn.glance.sh/image-retry.png",
+      expiresAt: 123,
+    } satisfies ImageEvent;
+
+    __testing.setSession(session);
+    vi.stubGlobal("fetch", vi.fn(async () =>
+      sseResponse([
+        `event: image\ndata: ${JSON.stringify(image)}\n\n`,
+      ]),
+    ));
+
+    const onImage = vi.fn()
+      .mockImplementationOnce(() => {
+        throw new Error("delivery failed");
+      });
+
+    await expect(
+      __testing.listenForImages(
+        session.id,
+        new AbortController().signal,
+        onImage,
+      ),
+    ).rejects.toThrow("delivery failed");
+
+    await __testing.listenForImages(
+      session.id,
+      new AbortController().signal,
+      onImage,
+    );
+
+    expect(onImage).toHaveBeenCalledTimes(2);
+    expect(onImage).toHaveBeenNthCalledWith(1, image);
+    expect(onImage).toHaveBeenNthCalledWith(2, image);
   });
 
   it("does not start the background listener on session_start", async () => {
@@ -373,6 +414,59 @@ describe("pi/glance", () => {
     await vi.waitFor(() => {
       expect(__testing.getState().running).toBe(false);
     });
+  });
+
+  it("reuses the session while ignoring images replayed by SSE reconnects", async () => {
+    let sessionCalls = 0;
+    let eventCalls = 0;
+
+    const fetchMock = vi.fn((input: string | URL) => {
+      const url = String(input);
+
+      if (url === "https://glance.sh/api/session") {
+        sessionCalls += 1;
+        return Promise.resolve(jsonResponse({
+          id: "session-reused",
+          url: "/s/session-reused",
+        }));
+      }
+
+      if (url === "https://glance.sh/api/session/session-reused/events") {
+        eventCalls += 1;
+        return Promise.resolve(sseResponse(
+          Array.from({ length: eventCalls }, (_, index) =>
+            `event: image\ndata: {"url":"https://cdn.glance.sh/image-${index + 1}.png","expiresAt":123}\n\n`,
+          ),
+        ));
+      }
+
+      throw new Error(`Unexpected fetch: ${url}`);
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const pi = createPi();
+    glanceExtension(pi.api as never);
+
+    const command = pi.commands.get("glance")!;
+    const ctx = createCommandContext();
+
+    for (let imageNumber = 1; imageNumber <= 3; imageNumber += 1) {
+      await command.handler([], ctx);
+      await vi.waitFor(() => {
+        expect(pi.api.sendUserMessage).toHaveBeenCalledTimes(imageNumber);
+        expect(__testing.getState().running).toBe(false);
+      });
+    }
+
+    expect(sessionCalls).toBe(1);
+    expect(eventCalls).toBe(3);
+    for (let imageNumber = 1; imageNumber <= 3; imageNumber += 1) {
+      expect(pi.api.sendUserMessage).toHaveBeenNthCalledWith(
+        imageNumber,
+        `Screenshot: https://cdn.glance.sh/image-${imageNumber}.png`,
+        { deliverAs: "followUp" },
+      );
+    }
   });
 
   it("waits for the next image in the glance tool and returns its URL", async () => {
