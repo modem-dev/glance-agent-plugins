@@ -64,6 +64,7 @@ let sessionCreatedAt = 0;
 let abortController: AbortController | null = null;
 let running = false;
 let waiterCounter = 0;
+const seenImageUrls = new Set<string>();
 
 async function createSession(): Promise<SessionResponse> {
   const res = await fetch(`${BASE_URL}/api/session`, {
@@ -75,6 +76,7 @@ async function createSession(): Promise<SessionResponse> {
   session.url = normalizeSessionUrl(session.url);
   currentSession = session;
   sessionCreatedAt = Date.now();
+  seenImageUrls.clear();
   return session;
 }
 
@@ -139,6 +141,7 @@ function stopBackground() {
   }
   abortController = null;
   currentSession = null;
+  seenImageUrls.clear();
 }
 
 function sleep(ms: number): Promise<void> {
@@ -206,13 +209,19 @@ async function listenForImages(
         } else if (line === "") {
           if (eventType === "image" && dataLines.length > 0) {
             const data = JSON.parse(dataLines.join("\n")) as ImageEvent;
+            eventType = "";
+            dataLines = [];
+            if (seenImageUrls.has(data.url)) continue;
+
             onImage(data);
+            seenImageUrls.add(data.url);
             clearTimeout(timeout);
             return;
           }
           if (eventType === "expired") {
             // Session gone — force refresh on next loop iteration
             currentSession = null;
+            seenImageUrls.clear();
             clearTimeout(timeout);
             return;
           }
@@ -307,6 +316,7 @@ export const __testing = {
   setSession(session: SessionResponse | null, createdAt = Date.now()) {
     currentSession = session;
     sessionCreatedAt = session ? createdAt : 0;
+    seenImageUrls.clear();
   },
   stopBackground,
   waitForNextImage,
