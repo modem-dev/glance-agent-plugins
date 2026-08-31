@@ -1,14 +1,14 @@
 {
   "name": "@modemdev/glance-pi",
   "version": "0.1.1",
-  "description": "glance.sh extension package for pi",
+  "description": "Glance image sharing extension for Pi. Paste a screenshot, your agent gets the URL.",
   "license": "MIT",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/modem-dev/glance-agent-plugins.git",
     "directory": "pi"
   },
-  "homepage": "https://github.com/modem-dev/glance-agent-plugins/tree/main/pi",
+  "homepage": "https://glance.sh",
   "bugs": {
     "url": "https://github.com/modem-dev/glance-agent-plugins/issues"
   },

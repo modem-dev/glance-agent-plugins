@@ -1,6 +1,6 @@
 # glance.sh plugin for Codex
 
-[Codex CLI](https://developers.openai.com/codex) integration that adds glance.sh screenshot tools via MCP.
+[Codex CLI](https://developers.openai.com/codex) MCP server for [Glance image sharing](https://glance.sh).
 
 ## What it does
 

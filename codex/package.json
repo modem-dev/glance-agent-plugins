@@ -1,7 +1,7 @@
 {
   "name": "@modemdev/glance-codex",
   "version": "0.1.2",
-  "description": "glance.sh MCP server package for Codex",
+  "description": "Glance image sharing MCP server for Codex CLI. Paste a screenshot, your agent gets the URL.",
   "license": "MIT",
   "type": "module",
   "repository": {
@@ -9,7 +9,7 @@
     "url": "git+https://github.com/modem-dev/glance-agent-plugins.git",
     "directory": "codex"
   },
-  "homepage": "https://github.com/modem-dev/glance-agent-plugins/tree/main/codex",
+  "homepage": "https://glance.sh",
   "bugs": {
     "url": "https://github.com/modem-dev/glance-agent-plugins/issues"
   },

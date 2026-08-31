@@ -1,7 +1,7 @@
 {
   "name": "@modemdev/glance-claude",
   "version": "0.1.1",
-  "description": "glance.sh plugin package for Claude Code",
+  "description": "Glance image sharing plugin for Claude Code. Paste a screenshot, your agent gets the URL.",
   "license": "MIT",
   "type": "module",
   "repository": {
@@ -9,7 +9,7 @@
     "url": "git+https://github.com/modem-dev/glance-agent-plugins.git",
     "directory": "claude"
   },
-  "homepage": "https://github.com/modem-dev/glance-agent-plugins/tree/main/claude",
+  "homepage": "https://glance.sh",
   "bugs": {
     "url": "https://github.com/modem-dev/glance-agent-plugins/issues"
   },
