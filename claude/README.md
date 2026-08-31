@@ -1,6 +1,6 @@
 # glance.sh plugin for Claude Code
 
-[Claude Code](https://github.com/anthropics/claude-code) plugin that adds glance.sh screenshot tools via MCP.
+[Claude Code](https://github.com/anthropics/claude-code) plugin for [Glance image sharing](https://glance.sh). Adds screenshot tools via MCP.
 
 ## What it does
 

@@ -1,6 +1,6 @@
 # glance.sh extension for pi
 
-[Pi](https://github.com/mariozechner/pi) extension that lets your agent request screenshots from you via [glance.sh](https://glance.sh).
+[Pi](https://github.com/mariozechner/pi) extension for [Glance image sharing](https://glance.sh). Lets your agent request screenshots from you.
 
 ## What it does
 

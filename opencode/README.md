@@ -1,6 +1,6 @@
 # glance.sh plugin for OpenCode
 
-[OpenCode](https://github.com/anomalyco/opencode) plugin that lets your agent request screenshots from you via [glance.sh](https://glance.sh).
+[OpenCode](https://github.com/anomalyco/opencode) plugin for [Glance image sharing](https://glance.sh). Lets your agent request screenshots from you.
 
 ## What it does
 

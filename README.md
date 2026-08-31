@@ -4,7 +4,7 @@
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![Supported Agents](https://img.shields.io/badge/agents-pi%20%7C%20OpenCode%20%7C%20Claude%20Code%20%7C%20Codex-blue)](#available-plugins)
 
-Agent integrations for [glance.sh](https://glance.sh) — temporary image sharing for coding agents.
+Agent integrations for [Glance image sharing](https://glance.sh) — paste a screenshot, your coding agent gets the URL.
 
 Paste a screenshot in your browser, your agent gets the URL instantly.
 
